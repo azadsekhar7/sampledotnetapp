@@ -16,15 +16,10 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)/bin/$(Build.Configuration)/net5.0'
     Contents: '**/*'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
-
-- task: AzureFileCopy@4
-  displayName: 'Copy artifacts to Azure Files'
+    TargetFolder: '- task: AzureCLI@2
+- task: AzureCLI@2
   inputs:
-    SourcePath: '$(Build.ArtifactStagingDirectory)'
-    azureSubscription: 'bea2acb9-69b6-4eed-9b6a-5add7e8e8f93'
-    destination: 'chandra'
-    filePattern: '**/*'
-    cleanTargetBeforeCopy: true
-    preserveTimestamp: true
-    AdditionalArgumentsForDestination: '-o allow_other'
+    azureSubscription: 'Free Trial(bea2acb9-69b6-4eed-9b6a-5add7e8e8f93)'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az storage file upload-batch --account-name devopstest123456 --account-key Cx8cMAAv+c8QdM4w3P391aWwfvy2/VZwN/ZUROxqX4q3ft9aLfdCcewSN8zFk6WrTUZj+bDCOAGv+ASt69XOhw== --destination chandra --destination-path myfolder/ --source $(Build.ArtifactStagingDirectory)'
