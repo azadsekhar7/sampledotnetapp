@@ -27,3 +27,4 @@ steps:
     filePattern: '**/*'
     cleanTargetBeforeCopy: true
     preserveTimestamp: true
+    AdditionalArgumentsForDestination: '-o allow_other'
