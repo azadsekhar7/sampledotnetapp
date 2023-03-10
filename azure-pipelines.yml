@@ -1,36 +1,29 @@
-# ASP.NET
-# Build and test ASP.NET projects.
-# Add steps that publish symbols, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
-
 trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
-
-variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  vmImage: 'ubuntu-latest'
 
 steps:
-- task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
+  displayName: 'Build .NET Core app'
   inputs:
-    restoreSolution: '$(solution)'
+    command: 'build'
+    projects: '**/*.csproj'
 
-- task: VSBuild@1
+- task: CopyFiles@2
+  displayName: 'Copy build artifacts'
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    SourceFolder: '$(Build.SourcesDirectory)/bin/$(Build.Configuration)/net5.0'
+    Contents: '**/*'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-
-- task: PublishPipelineArtifact@1
+- task: AzureFileCopy@4
+  displayName: 'Copy artifacts to Azure Files'
   inputs:
-    targetPath: '$(Pipeline.Workspace)' # string. Alias: path. Required. File or directory path. Default: $(Pipeline.Workspace).
-    #artifact: # string. Alias: artifactName. Artifact name. 
-    publishLocation: 'pipeline'
+    SourcePath: '$(Build.ArtifactStagingDirectory)'
+    azureSubscription: 'bea2acb9-69b6-4eed-9b6a-5add7e8e8f93'
+    destination: 'chandra'
+    filePattern: '**/*'
+    cleanTargetBeforeCopy: true
+    preserveTimestamp: true
